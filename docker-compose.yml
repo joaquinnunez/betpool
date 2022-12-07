@@ -7,3 +7,7 @@ services:
       dockerfile: ./Dockerfile
     env_file:
       - .env
+    volumes:
+      - "./contracts/:/app/contracts/"
+      - "./test/:/app/test/"
+      - "./scripts/:/app/scripts/"
