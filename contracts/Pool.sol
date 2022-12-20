@@ -26,6 +26,7 @@ contract Pool {
   // timestamp for states
 
   error NoWinnerYet();
+  error WinnerAlreadySet();
 
   constructor(
     address[] memory _options,
@@ -50,7 +51,7 @@ contract Pool {
 
   function setWinner (address _winner) public {
     // guard only authorized
-    // guard winner exists
+    if(winner != address(0)) revert WinnerAlreadySet();
 
     winner = _winner;
 
