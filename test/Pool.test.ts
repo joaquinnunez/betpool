@@ -190,4 +190,17 @@ describe("BetPool", function () {
     const PoolContract = await ethers.getContractFactory(CONTRACT)
     await expect(SetWinnerOnlyOnce()).to.be.revertedWithCustomError(PoolContract, 'WinnerAlreadySet');
   })
+
+  it("Should revert setting the winner if the provided winner is not an option", async function () {
+    async function SetUnknownWinner() {
+      await loadFixture(PoolOf3NoFee)
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ option1, option2, option3, option4 ] = options
+
+      await betPool.setWinner(option4.address)
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(SetUnknownWinner()).to.be.revertedWithCustomError(PoolContract, 'UnknownWinner');
+  })
 })

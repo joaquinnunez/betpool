@@ -27,6 +27,7 @@ contract Pool {
 
   error NoWinnerYet();
   error WinnerAlreadySet();
+  error UnknownWinner();
 
   constructor(
     address[] memory _options,
@@ -52,9 +53,9 @@ contract Pool {
   function setWinner (address _winner) public {
     // guard only authorized
     if(winner != address(0)) revert WinnerAlreadySet();
+    if(!options[_winner]) revert UnknownWinner();
 
     winner = _winner;
-
     // emit event
   }
 
