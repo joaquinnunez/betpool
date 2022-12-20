@@ -8,6 +8,7 @@ contract Pool {
   mapping(address => uint) public bets;
 
   uint public total;
+  uint public fee;
 
   mapping(address => bool) public options;
 
@@ -23,12 +24,13 @@ contract Pool {
   // balance after address amount
   // state closed, open, waiting
   // timestamp for states
-  // fee
 
 
   constructor(
-    address[] memory _options
+    address[] memory _options,
+    uint _fee
   ) {
+    fee = _fee;
     for (uint i=0; i<_options.length; i++) {
       options[_options[i]] = true;
     }
@@ -98,10 +100,8 @@ contract Pool {
     if (optionTotal == 0)
       return 0;
 
-    // total 2000
-    // bettors [option] [bettorAddress] // 1000
-    // optionTotal // 2000
-    // (1000/2000) * 2000
-    return (bettors [option] [bettorAddress] * 100 / optionTotal) * total / 100;
+    uint toDistribute = total * (100 - fee) / 100;
+    uint addressPercentage = (bettors [option] [bettorAddress] * 100 / optionTotal);
+    return addressPercentage * toDistribute / 100;
   }
 }
