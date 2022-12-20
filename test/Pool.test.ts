@@ -158,4 +158,22 @@ describe("BetPool", function () {
     const gasSpent = claimReceipt.gasUsed.mul(claimReceipt.effectiveGasPrice)
     expect(await bettor1.getBalance()).to.eq(ethers.utils.parseEther('0.0294').add(b1Balance).sub(gasSpent))
   })
+
+  it("Should revert a claim when the winner is not set", async function () {
+    async function claimNoWinner() {
+      await loadFixture(PoolOf3NoFee)
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ bettor1, bettor2, bettor3 ] = bettors
+      const [ option1, option2, option3 ] = options
+      const b0 = await betPool.connect(bettor3).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
+      const b1 = await betPool.connect(bettor1).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
+      const b2 = await betPool.connect(bettor2).bet(option2.address, {value: ethers.utils.parseEther('0.02')})
+      const b3 = await betPool.connect(bettor2).bet(option3.address, {value: ethers.utils.parseEther('0.02')})
+
+      const claim = await betPool.connect(bettor1).claim()
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(claimNoWinner()).to.be.revertedWithCustomError(PoolContract, 'NoWinnerYet');
+  })
 })

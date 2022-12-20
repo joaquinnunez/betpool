@@ -25,6 +25,7 @@ contract Pool {
   // state closed, open, waiting
   // timestamp for states
 
+  error NoWinnerYet();
 
   constructor(
     address[] memory _options,
@@ -68,7 +69,7 @@ contract Pool {
    *   hash address: amount to withdraw
    */
   function claim() public {
-    // there must be a winner
+    if(winner == address(0)) revert NoWinnerYet();
     // must exist ( bettors [winner] [msg.sender] )
 
     uint bettorPayout = payout(winner, msg.sender);
