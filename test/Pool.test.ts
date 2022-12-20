@@ -203,4 +203,18 @@ describe("BetPool", function () {
     const PoolContract = await ethers.getContractFactory(CONTRACT)
     await expect(SetUnknownWinner()).to.be.revertedWithCustomError(PoolContract, 'UnknownWinner');
   })
+
+  it("Should revert betting if the provided option not actually an option", async function () {
+    async function BetForAnUnknownOption() {
+      await loadFixture(PoolOf3NoFee)
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ bettor1 ] = bettors
+      const [ option1, option2, option3, option4 ] = options
+
+      const b1 = await betPool.connect(bettor1).bet(option4.address, {value: ethers.utils.parseEther('0.01')})
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(BetForAnUnknownOption()).to.be.revertedWithCustomError(PoolContract, 'UnknownOption');
+  })
 })

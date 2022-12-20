@@ -28,6 +28,7 @@ contract Pool {
   error NoWinnerYet();
   error WinnerAlreadySet();
   error UnknownWinner();
+  error UnknownOption();
 
   constructor(
     address[] memory _options,
@@ -39,15 +40,14 @@ contract Pool {
     }
   }
 
-  function bet(address option) public payable {
-     // require msg value to be enough
-     // option must exists
+  function bet(address _option) public payable {
+    // require msg value to be enough
+    if(!options[_option]) revert UnknownOption();
 
-     bets [option] += msg.value;
-     bettors [option] [msg.sender] += msg.value;
-     total += msg.value;
-
-     // emit event
+    bets [_option] += msg.value;
+    bettors [_option] [msg.sender] += msg.value;
+    total += msg.value;
+    // emit event
   }
 
   function setWinner (address _winner) public {
