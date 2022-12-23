@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
-contract Pool {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Pool is Ownable {
   address winner;
 
   // option: amount betted
@@ -50,8 +52,7 @@ contract Pool {
     // emit event
   }
 
-  function setWinner (address _winner) public {
-    // guard only authorized
+  function setWinner (address _winner) public onlyOwner {
     if(winner != address(0)) revert WinnerAlreadySet();
     if(!options[_winner]) revert UnknownWinner();
 

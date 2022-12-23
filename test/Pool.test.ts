@@ -161,7 +161,6 @@ describe("BetPool", function () {
 
   it("Should revert a claim when the winner is not set", async function () {
     async function claimNoWinner() {
-      await loadFixture(PoolOf3NoFee)
       const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
       const [ bettor1, bettor2, bettor3 ] = bettors
       const [ option1, option2, option3 ] = options
@@ -174,12 +173,11 @@ describe("BetPool", function () {
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
-    await expect(claimNoWinner()).to.be.revertedWithCustomError(PoolContract, 'NoWinnerYet');
+    await expect(claimNoWinner()).to.be.revertedWithCustomError(PoolContract, 'NoWinnerYet')
   })
 
   it("Should revert setting the winner when is already set", async function () {
     async function SetWinnerOnlyOnce() {
-      await loadFixture(PoolOf3NoFee)
       const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
       const [ option1, option2 ] = options
 
@@ -188,12 +186,11 @@ describe("BetPool", function () {
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
-    await expect(SetWinnerOnlyOnce()).to.be.revertedWithCustomError(PoolContract, 'WinnerAlreadySet');
+    await expect(SetWinnerOnlyOnce()).to.be.revertedWithCustomError(PoolContract, 'WinnerAlreadySet')
   })
 
   it("Should revert setting the winner if the provided winner is not an option", async function () {
     async function SetUnknownWinner() {
-      await loadFixture(PoolOf3NoFee)
       const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
       const [ option1, option2, option3, option4 ] = options
 
@@ -201,12 +198,11 @@ describe("BetPool", function () {
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
-    await expect(SetUnknownWinner()).to.be.revertedWithCustomError(PoolContract, 'UnknownWinner');
+    await expect(SetUnknownWinner()).to.be.revertedWithCustomError(PoolContract, 'UnknownWinner')
   })
 
   it("Should revert betting if the provided option not actually an option", async function () {
     async function BetForAnUnknownOption() {
-      await loadFixture(PoolOf3NoFee)
       const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
       const [ bettor1 ] = bettors
       const [ option1, option2, option3, option4 ] = options
@@ -215,6 +211,18 @@ describe("BetPool", function () {
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
-    await expect(BetForAnUnknownOption()).to.be.revertedWithCustomError(PoolContract, 'UnknownOption');
+    await expect(BetForAnUnknownOption()).to.be.revertedWithCustomError(PoolContract, 'UnknownOption')
+  })
+
+  it("Should allow only the owner to set the winner", async function () {
+    async function BettorSettingWinner() {
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ bettor1 ] = bettors
+      const [ option1 ] = options
+      await betPool.connect(bettor1).setWinner(option1.address)
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(BettorSettingWinner()).to.be.revertedWith('Ownable: caller is not the owner')
   })
 })
