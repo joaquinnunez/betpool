@@ -22,6 +22,13 @@ contract Pool is Ownable {
   );
 
   /**
+   *
+   */
+  event Claim (
+    address bettor
+  );
+
+  /**
    * The actual outcome
    */
   address public winner;
@@ -154,7 +161,7 @@ contract Pool is Ownable {
 
     payable(msg.sender).transfer(bettorPayout);
 
-    // emit event
+    emit Claim(msg.sender);
   }
 
   function claimHouse() public {

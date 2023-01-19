@@ -268,4 +268,17 @@ describe("BetPool", function () {
       .to.emit(betPool, 'WinnerSet')
       .withArgs(option1.address)
   })
+
+  it("Should emit `Claim` event", async function () {
+    const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+    const [ bettor1 ] = bettors
+    const [ option1 ] = options
+
+    await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    await betPool.setWinner(option1.address)
+
+    await expect(betPool.connect(bettor1).claim())
+      .to.emit(betPool, 'Claim')
+      .withArgs(bettor1.address)
+  })
 })
