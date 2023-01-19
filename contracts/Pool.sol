@@ -3,21 +3,48 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/**
+ * TODO: Check bet size to be multiple of `minBetSize`
+ * TODO: Add states. closed, open, waiting
+ * TODO: Events timestamp (used with states?)
+ * TODO: Use ERC20 instead of ether
+ * TODO: Move fee out to another contract, to make it reusable
+ * TODO: Move conf out to another contract, to make it reusable `minBetSize`, `tokenAddress` and below.
+ *
+ * [?] max total bets number
+ * [?] max size bet number
+ *
+ */
+
 contract Pool is Ownable {
   address winner;
 
-  // option: amount betted
+  /**
+   * outcome: amount betted
+   */
   mapping(address => uint) public bets;
 
+  /**
+   * Keep track of the total value betted
+   */
   uint public total;
+
+  /**
+   * Might use a different data structure to support N type of fees
+   */
   uint public fee;
 
+  /**
+   * Keep track of outcomes
+   */
   mapping(address => bool) public options;
 
-  // option => bettor => amount
-  // option 0 address: amount
-  // option 1
-  // option 2
+  /**
+   * outcome => bettor => amount
+   * outcome 0 address: amount
+   * outcome 1
+   * outcome 2
+   */
   mapping(address => mapping(address => uint)) public bettors;
 
   // max total bets number
@@ -36,8 +63,20 @@ contract Pool is Ownable {
    *
    */
   error NoWinnerYet();
+
+  /**
+   *
+   */
   error WinnerAlreadySet();
+
+  /**
+   *
+   */
   error UnknownWinner();
+
+  /**
+   *
+   */
   error UnknownOption();
 
   /**
@@ -52,6 +91,7 @@ contract Pool is Ownable {
     fee = _fee;
     minBetSize = _minBetSize;
     for (uint i=0; i<_options.length; i++) {
+      // require options not to be 0x00
       options[_options[i]] = true;
     }
   }
@@ -102,27 +142,32 @@ contract Pool is Ownable {
   }
 
   function claimHouse() public {
-    //   must be house
-    //   send amount = fee * total
+    // must be house
+    // send amount = fee * total
   }
 
   function refund () public {
-    //   must be house
+    // must be house
   }
 
   function payout (address option, address bettorAddress) public view returns (uint) {
-    // guard option
-    // guard bettorAddress
-    // guard optionTotal
-
-    // option must exists
-
     uint optionTotal = bets [option];
     if (optionTotal == 0)
       return 0;
 
-    uint toDistribute = total * (100 - fee) / 100;
-    uint addressPercentage = (bettors [option] [bettorAddress] * 100 / optionTotal);
-    return addressPercentage * toDistribute / 100;
+    uint bettorTotal = bettors [option] [bettorAddress];
+    if (bettorTotal == 0)
+      return 0;
+
+    uint addressPercentage = (bettorTotal * 100 / optionTotal);
+    return addressPercentage * toDistribute() / 100;
+  }
+
+  function toDistribute() public view returns (uint) {
+    return total * (100 - poolFee()) / 100;
+  }
+
+  function poolFee() public view returns (uint) {
+    return fee;
   }
 }
