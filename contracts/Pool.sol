@@ -17,7 +17,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 
 contract Pool is Ownable {
-  address winner;
+  event WinnerSet (
+    address outcome
+  );
+
+  /**
+   * The actual outcome
+   */
+  address public winner;
 
   /**
    * outcome: amount betted
@@ -107,6 +114,9 @@ contract Pool is Ownable {
     // require outcome to exist
     if(!options[_option]) revert UnknownOption();
 
+    // require winner not to be set
+    if(winner != address(0)) revert WinnerAlreadySet();
+
     bets [_option] += msg.value;
     bettors [_option] [msg.sender] += msg.value;
     total += msg.value;
@@ -118,7 +128,8 @@ contract Pool is Ownable {
     if(!options[_winner]) revert UnknownWinner();
 
     winner = _winner;
-    // emit event
+
+    emit WinnerSet(_winner);
   }
 
   /*

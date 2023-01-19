@@ -245,4 +245,27 @@ describe("BetPool", function () {
     const PoolContract = await ethers.getContractFactory(CONTRACT)
     await expect(ClaimTwice()).to.be.revertedWithCustomError(PoolContract, 'AlreadyClaimed')
   })
+
+  it("Should not allow to bet if the winner is already set", async function () {
+    async function BetAfterEnd() {
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ bettor1 ] = bettors
+      const [ option1 ] = options
+
+      await betPool.setWinner(option1.address)
+      await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(BetAfterEnd()).to.be.revertedWithCustomError(PoolContract, 'WinnerAlreadySet')
+  })
+
+  it("Should emit `WinnerSet` event", async function () {
+    const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+    const [ option1 ] = options
+
+    await expect(betPool.setWinner(option1.address))
+      .to.emit(betPool, 'WinnerSet')
+      .withArgs(option1.address)
+  })
 })
