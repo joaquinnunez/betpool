@@ -5,9 +5,13 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
+    command: ["yarn", "hardhat", "node"]
     env_file:
       - .env
     volumes:
+      - "./artifacts/:/app/artifacts/"
       - "./contracts/:/app/contracts/"
       - "./test/:/app/test/"
       - "./scripts/:/app/scripts/"
+    ports:
+      - '8545:8545'
