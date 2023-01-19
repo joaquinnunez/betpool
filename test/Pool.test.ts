@@ -228,4 +228,21 @@ describe("BetPool", function () {
     const PoolContract = await ethers.getContractFactory(CONTRACT)
     await expect(BettorSettingWinner()).to.be.revertedWith('Ownable: caller is not the owner')
   })
+
+  it("Should only allow to claim once", async function () {
+    async function ClaimTwice() {
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ bettor1, bettor2 ] = bettors
+      const [ option1, option2 ] = options
+
+      await betPool.connect(bettor1).bet(option1.address, {value: e01})
+      await betPool.connect(bettor2).bet(option2.address, {value: e01})
+      await betPool.setWinner(option1.address)
+      await betPool.connect(bettor1).claim()
+      await betPool.connect(bettor1).claim()
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(ClaimTwice()).to.be.revertedWithCustomError(PoolContract, 'AlreadyClaimed')
+  })
 })

@@ -47,12 +47,10 @@ contract Pool is Ownable {
    */
   mapping(address => mapping(address => uint)) public bettors;
 
-  // max total bets number
-  // max size bet number
-  // tokens address
-  // balance after address amount
-  // state closed, open, waiting
-  // timestamp for states
+  /**
+   * Keep track of user's claims.
+   */
+  mapping(address => bool) public claims;
 
   /**
    *
@@ -83,6 +81,12 @@ contract Pool is Ownable {
    *
    */
   error NotEnough();
+
+  /**
+   *
+   */
+  error AlreadyClaimed();
+
   constructor(
     address[] memory _options,
     uint _fee,
@@ -130,11 +134,12 @@ contract Pool is Ownable {
    */
   function claim() public {
     if(winner == address(0)) revert NoWinnerYet();
-    // must exist ( bettors [winner] [msg.sender] )
+
+    if(claims[msg.sender]) revert AlreadyClaimed();
 
     uint bettorPayout = payout(winner, msg.sender);
 
-    // revert on payout 0?
+    claims[msg.sender] = true;
 
     payable(msg.sender).transfer(bettorPayout);
 
