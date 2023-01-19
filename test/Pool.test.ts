@@ -281,4 +281,17 @@ describe("BetPool", function () {
       .to.emit(betPool, 'Claim')
       .withArgs(bettor1.address)
   })
+
+  it("Should emit `Outcome` event for each outcome", async function () {
+    const [owner,
+        option1, option2, option3, option4,
+        bettor1, bettor2, bettor3, bettor4,
+    ] = await ethers.getSigners()
+    const BetPoolContract = await ethers.getContractFactory(CONTRACT)
+    const options = [option1, option2, option3].map((option)=>option.address)
+    const betPool = await BetPoolContract.deploy(options, 0, e01)
+
+    await expect(betPool.deployTransaction)
+      .to.emit(betPool, 'Outcome')
+  })
 })

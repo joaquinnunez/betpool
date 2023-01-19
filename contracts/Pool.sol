@@ -17,6 +17,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 
 contract Pool is Ownable {
+  /**
+   *
+   */
+  event Outcome (
+    address outcome
+  );
+
+  /**
+   *
+   */
   event WinnerSet (
     address outcome
   );
@@ -111,6 +121,7 @@ contract Pool is Ownable {
     for (uint i=0; i<_options.length; i++) {
       // require options not to be 0x00
       options[_options[i]] = true;
+      emit Outcome(_options[i]);
     }
   }
 
