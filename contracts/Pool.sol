@@ -27,6 +27,15 @@ contract Pool is Ownable {
   /**
    *
    */
+  event Bet (
+    address outcome,
+    address bettor,
+    uint amount
+  );
+
+  /**
+   *
+   */
   event WinnerSet (
     address outcome
   );
@@ -138,7 +147,8 @@ contract Pool is Ownable {
     bets [_option] += msg.value;
     bettors [_option] [msg.sender] += msg.value;
     total += msg.value;
-    // emit event
+
+    emit Bet(_option, msg.sender, msg.value);
   }
 
   function setWinner (address _winner) public onlyOwner {

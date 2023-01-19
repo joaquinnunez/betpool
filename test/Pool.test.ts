@@ -294,4 +294,18 @@ describe("BetPool", function () {
     await expect(betPool.deployTransaction)
       .to.emit(betPool, 'Outcome')
   })
+
+  it("Should emit `Bet` event", async function () {
+    const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+    const [ bettor1 ] = bettors
+    const [ option1 ] = options
+
+    await expect(
+      betPool
+      .connect(bettor1)
+      .bet(option1.address, {value: e01})
+    )
+      .to.emit(betPool, 'Bet')
+      .withArgs(option1.address, bettor1.address, e01)
+  })
 })
