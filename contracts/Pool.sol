@@ -27,16 +27,30 @@ contract Pool is Ownable {
   // state closed, open, waiting
   // timestamp for states
 
+  /**
+   *
+   */
+  uint public minBetSize;
+
+  /**
+   *
+   */
   error NoWinnerYet();
   error WinnerAlreadySet();
   error UnknownWinner();
   error UnknownOption();
 
+  /**
+   *
+   */
+  error NotEnough();
   constructor(
     address[] memory _options,
-    uint _fee
+    uint _fee,
+    uint _minBetSize
   ) {
     fee = _fee;
+    minBetSize = _minBetSize;
     for (uint i=0; i<_options.length; i++) {
       options[_options[i]] = true;
     }
@@ -44,6 +58,9 @@ contract Pool is Ownable {
 
   function bet(address _option) public payable {
     // require msg value to be enough
+    if(msg.value < minBetSize) revert NotEnough();
+
+    // require outcome to exist
     if(!options[_option]) revert UnknownOption();
 
     bets [_option] += msg.value;

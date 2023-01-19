@@ -4,6 +4,8 @@ import { ethers } from 'hardhat'
 import { Contract, Signer } from 'ethers'
 
 const CONTRACT = "Pool"
+const e01 = ethers.utils.parseEther('0.01')
+const e02 = ethers.utils.parseEther('0.02')
 
 describe("BetPool", function () {
   async function PoolOf3(fee: number) {
@@ -13,7 +15,8 @@ describe("BetPool", function () {
     ] = await ethers.getSigners()
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2, option3].map((option)=>option.address)
-    const betPool = await BetPoolContract.deploy(options, fee)
+    const minBetSize = ethers.utils.parseEther('0.01')
+    const betPool = await BetPoolContract.deploy(options, fee, minBetSize)
     await betPool.deployed()
 
     return { betPool, owner,
@@ -49,58 +52,58 @@ describe("BetPool", function () {
     const { betPool, options, bettors } = await loadFixture(PoolOf3NoFee)
     const [ option1 ] = options
     const [ bettor1 ] = bettors
-    const x = await betPool.connect(bettor1).bet(option1.address, {value: 1})
+    const x = await betPool.connect(bettor1).bet(option1.address, {value: e01})
 
     const amountForOption = await betPool.bets(option1.address)
-    expect(amountForOption).to.equal(1)
+    expect(amountForOption).to.equal(e01)
 
     const amountBettor1 = await betPool.bettors(option1.address, bettor1.address)
-    expect(amountBettor1).to.equal(1)
+    expect(amountBettor1).to.equal(e01)
 
-    const x1 = await betPool.connect(bettor1).bet(option1.address, {value: 1})
+    const x1 = await betPool.connect(bettor1).bet(option1.address, {value: e01})
 
     const newAmountForOption = await betPool.bets(option1.address)
-    expect(newAmountForOption).to.equal(2)
+    expect(newAmountForOption).to.equal(e02)
 
     const newAmountBettor1 = await betPool.bettors(option1.address, bettor1.address)
-    expect(newAmountBettor1).to.equal(2)
+    expect(newAmountBettor1).to.equal(e02)
   })
 
   it("Should allow different addresses to bet N ETH to an option", async function () {
     const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
     const [ option1 ] = options
     const [ bettor1, bettor2 ] = bettors
-    const x = await betPool.connect(bettor1).bet(option1.address, {value: 1})
-    const x1 = await betPool.connect(bettor2).bet(option1.address, {value: 1})
+    const x = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    const x1 = await betPool.connect(bettor2).bet(option1.address, {value: e01})
 
     const amountForOption1 = await betPool.bets(option1.address)
-    expect(amountForOption1).to.equal(2)
+    expect(amountForOption1).to.equal(e02)
 
     const amountBettor1 = await betPool.bettors(option1.address, bettor1.address)
-    expect(amountBettor1).to.equal(1)
+    expect(amountBettor1).to.equal(e01)
 
     const amountBettor2 = await betPool.bettors(option1.address, bettor2.address)
-    expect(amountBettor2).to.equal(1)
+    expect(amountBettor2).to.equal(e01)
   })
 
   it("Should compute to correct expected payout for the address", async function () {
     const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
     const [ option1 ] = options
     const [ bettor1, bettor2 ] = bettors
-    const x = await betPool.connect(bettor1).bet(option1.address, {value: 1000})
-    const x1 = await betPool.connect(bettor2).bet(option1.address, {value: 1000})
+    const x = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    const x1 = await betPool.connect(bettor2).bet(option1.address, {value: e01})
 
     const amountForOption1 = await betPool.bets(option1.address)
-    expect(amountForOption1).to.equal(2000)
+    expect(amountForOption1).to.equal(e02)
 
     const amountBettor1 = await betPool.bettors(option1.address, bettor1.address)
-    expect(amountBettor1).to.equal(1000)
+    expect(amountBettor1).to.equal(e01)
 
     const amountBettor2 = await betPool.bettors(option1.address, bettor2.address)
-    expect(amountBettor2).to.equal(1000)
+    expect(amountBettor2).to.equal(e01)
 
     const percentage = await betPool.payout (option1.address, bettor1.address)
-    expect(percentage).to.equal(1000)
+    expect(percentage).to.equal(e01)
   })
 
   it("Should allow the user to claim the payout", async function () {
@@ -125,20 +128,20 @@ describe("BetPool", function () {
     const { betPool, bettors, options } = await loadFixture(PoolOf3WithFee)
     const [ option1 ] = options
     const [ bettor1, bettor2 ] = bettors
-    const x = await betPool.connect(bettor1).bet(option1.address, {value: 1000})
-    const x1 = await betPool.connect(bettor2).bet(option1.address, {value: 1000})
+    const x = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    const x1 = await betPool.connect(bettor2).bet(option1.address, {value: e01})
 
     const amountForOption1 = await betPool.bets(option1.address)
-    expect(amountForOption1).to.equal(2000)
+    expect(amountForOption1).to.equal(e02)
 
     const amountBettor1 = await betPool.bettors(option1.address, bettor1.address)
-    expect(amountBettor1).to.equal(1000)
+    expect(amountBettor1).to.equal(e01)
 
     const amountBettor2 = await betPool.bettors(option1.address, bettor2.address)
-    expect(amountBettor2).to.equal(1000)
+    expect(amountBettor2).to.equal(e01)
 
     const percentage = await betPool.payout (option1.address, bettor1.address)
-    expect(percentage).to.equal(980)
+    expect(percentage).to.equal(ethers.utils.parseEther('0.0098'))
   })
 
   it("Should allow the user to claim the payout, with fee", async function () {
