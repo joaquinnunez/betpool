@@ -18,14 +18,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Pool is Ownable {
   /**
-   *
+   * Emitted for every outcome on pool creation.
+   * Used to retrieve the possible outcomes.
    */
   event Outcome (
     address outcome
   );
 
   /**
-   *
+   * Emitted every time a bet is added to the pool.
+   * Allows to update the payout
    */
   event Bet (
     address outcome,
@@ -34,26 +36,28 @@ contract Pool is Ownable {
   );
 
   /**
-   *
+   * To be changed soon. But now is used to update the UI.
    */
   event WinnerSet (
     address outcome
   );
 
   /**
-   *
+   * Emmited every time a claim is successful.
    */
   event Claim (
     address bettor
   );
 
   /**
-   * The actual outcome
+   * The actual outcome.
+   * TODO: change name/strategy for this.
    */
   address public winner;
 
   /**
-   * outcome: amount betted
+   * Keep track of the amount betted for a specific outcome, the total for that outcome.
+   * Like, `outcome: amount betted`
    */
   mapping(address => uint) public bets;
 
@@ -63,7 +67,8 @@ contract Pool is Ownable {
   uint public total;
 
   /**
-   * Might use a different data structure to support N type of fees
+   * Fee to discount to bettors for the service.
+   * TODO: use a different data structure to support N type of fees.
    */
   uint public fee;
 
@@ -73,6 +78,7 @@ contract Pool is Ownable {
   mapping(address => bool) public options;
 
   /**
+   * Keep track of the amount betted to an outcome, by a bettor.
    * outcome => bettor => amount
    * outcome 0 address: amount
    * outcome 1
@@ -86,17 +92,20 @@ contract Pool is Ownable {
   mapping(address => bool) public claims;
 
   /**
-   *
+   * Only allow at least `minBetSize` bets.
+   * TODO: Only accepts multiples of `minSizeBet`
    */
   uint public minBetSize;
 
   /**
-   *
+   * Don't allow to claim if the outcome is not set yet.
+   * TODO: Use states.
    */
   error NoWinnerYet();
 
   /**
-   *
+   * Don't allow to bet if the outcome is already set.
+   * Don't allow to reset the outcome
    */
   error WinnerAlreadySet();
 
@@ -106,22 +115,22 @@ contract Pool is Ownable {
   error UnknownWinner();
 
   /**
-   *
+   * Winner must be an existing outcome.
    */
   error UnknownOption();
 
   /**
-   *
+   * Expect at least `minBetSize` to bet.
    */
   error NotEnough();
 
   /**
-   *
+   * Used when the user tries to claim for than once.
    */
   error AlreadyClaimed();
 
   /**
-   *
+   * Used when someone tries to claim a non existing payout.
    */
   error NothingToClaim();
 
