@@ -308,4 +308,20 @@ describe("BetPool", function () {
       .to.emit(betPool, 'Bet')
       .withArgs(option1.address, bettor1.address, e01)
   })
+
+  it("Should revert a claim if there is no payout", async function () {
+    async function claimNoPayout() {
+      const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
+      const [ bettor1, bettor2, bettor3 ] = bettors
+      const [ option1, option2, option3 ] = options
+      const b1 = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+      const b2 = await betPool.connect(bettor2).bet(option2.address, {value: e01})
+
+      await betPool.setWinner(option1.address)
+      const claim = await betPool.connect(bettor2).claim()
+    }
+
+    const PoolContract = await ethers.getContractFactory(CONTRACT)
+    await expect(claimNoPayout()).to.be.revertedWithCustomError(PoolContract, 'NothingToClaim')
+  })
 })

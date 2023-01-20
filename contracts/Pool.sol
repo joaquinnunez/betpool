@@ -120,6 +120,11 @@ contract Pool is Ownable {
    */
   error AlreadyClaimed();
 
+  /**
+   *
+   */
+  error NothingToClaim();
+
   constructor(
     address[] memory _options,
     uint _fee,
@@ -177,6 +182,8 @@ contract Pool is Ownable {
     if(claims[msg.sender]) revert AlreadyClaimed();
 
     uint bettorPayout = payout(winner, msg.sender);
+
+    if(bettorPayout == 0) revert NothingToClaim();
 
     claims[msg.sender] = true;
 
