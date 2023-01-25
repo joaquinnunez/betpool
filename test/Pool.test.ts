@@ -13,9 +13,11 @@ describe("BetPool", function () {
         option1, option2, option3, option4,
         bettor1, bettor2, bettor3, bettor4,
     ] = await ethers.getSigners()
+    const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
+    const poolConf = await PoolConfContract.deploy(fee)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2, option3].map((option)=>option.address)
-    const betPool = await BetPoolContract.deploy(options, fee, e01)
+    const betPool = await BetPoolContract.deploy(options, poolConf.address, e01)
     await betPool.deployed()
 
     return { betPool, owner,
@@ -286,9 +288,11 @@ describe("BetPool", function () {
         option1, option2, option3, option4,
         bettor1, bettor2, bettor3, bettor4,
     ] = await ethers.getSigners()
+    const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
+    const poolConf = await PoolConfContract.deploy(0)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2, option3].map((option)=>option.address)
-    const betPool = await BetPoolContract.deploy(options, 0, e01)
+    const betPool = await BetPoolContract.deploy(options, poolConf.address, e01)
 
     await expect(betPool.deployTransaction)
       .to.emit(betPool, 'Outcome')

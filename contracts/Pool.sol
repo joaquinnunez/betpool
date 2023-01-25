@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IPoolConfiguration.sol";
 
 /**
  * TODO: Check bet size to be multiple of `minBetSize`
@@ -50,6 +51,11 @@ contract Pool is Ownable {
   );
 
   /**
+   * Configuration
+   */
+  address public configuration;
+
+  /**
    * The actual outcome.
    * TODO: change name/strategy for this.
    */
@@ -66,11 +72,6 @@ contract Pool is Ownable {
    */
   uint public total;
 
-  /**
-   * Fee to discount to bettors for the service.
-   * TODO: use a different data structure to support N type of fees.
-   */
-  uint public fee;
 
   /**
    * Keep track of outcomes
@@ -136,10 +137,12 @@ contract Pool is Ownable {
 
   constructor(
     address[] memory _options,
-    uint _fee,
+    address poolConfiguration,
     uint _minBetSize
   ) {
-    fee = _fee;
+    require(poolConfiguration != address(0), "Invalid configuration");
+    configuration = poolConfiguration;
+
     minBetSize = _minBetSize;
     for (uint i=0; i<_options.length; i++) {
       // require options not to be 0x00
@@ -228,6 +231,6 @@ contract Pool is Ownable {
   }
 
   function poolFee() public view returns (uint) {
-    return fee;
+    return IPoolConfiguration(configuration).fee();
   }
 }
