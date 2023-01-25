@@ -15,8 +15,7 @@ describe("BetPool", function () {
     ] = await ethers.getSigners()
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2, option3].map((option)=>option.address)
-    const minBetSize = ethers.utils.parseEther('0.01')
-    const betPool = await BetPoolContract.deploy(options, fee, minBetSize)
+    const betPool = await BetPoolContract.deploy(options, fee, e01)
     await betPool.deployed()
 
     return { betPool, owner,
@@ -110,10 +109,10 @@ describe("BetPool", function () {
     const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
     const [ bettor1, bettor2, bettor3 ] = bettors
     const [ option1, option2, option3 ] = options
-    const b0 = await betPool.connect(bettor3).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
-    const b1 = await betPool.connect(bettor1).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
-    const b2 = await betPool.connect(bettor2).bet(option2.address, {value: ethers.utils.parseEther('0.02')})
-    const b3 = await betPool.connect(bettor2).bet(option3.address, {value: ethers.utils.parseEther('0.02')})
+    const b0 = await betPool.connect(bettor3).bet(option1.address, {value: e01})
+    const b1 = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    const b2 = await betPool.connect(bettor2).bet(option2.address, {value: e02})
+    const b3 = await betPool.connect(bettor2).bet(option3.address, {value: e02})
     const b1Balance = await bettor1.getBalance()
 
     await betPool.setWinner(option1.address)
@@ -148,10 +147,10 @@ describe("BetPool", function () {
     const { betPool, bettors, options } = await loadFixture(PoolOf3WithFee)
     const [ bettor1, bettor2, bettor3 ] = bettors
     const [ option1, option2, option3 ] = options
-    const b0 = await betPool.connect(bettor3).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
-    const b1 = await betPool.connect(bettor1).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
-    const b2 = await betPool.connect(bettor2).bet(option2.address, {value: ethers.utils.parseEther('0.02')})
-    const b3 = await betPool.connect(bettor2).bet(option3.address, {value: ethers.utils.parseEther('0.02')})
+    const b0 = await betPool.connect(bettor3).bet(option1.address, {value: e01})
+    const b1 = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+    const b2 = await betPool.connect(bettor2).bet(option2.address, {value: e02})
+    const b3 = await betPool.connect(bettor2).bet(option3.address, {value: e02})
     const b1Balance = await bettor1.getBalance()
 
     await betPool.setWinner(option1.address)
@@ -167,10 +166,10 @@ describe("BetPool", function () {
       const { betPool, bettors, options } = await loadFixture(PoolOf3NoFee)
       const [ bettor1, bettor2, bettor3 ] = bettors
       const [ option1, option2, option3 ] = options
-      const b0 = await betPool.connect(bettor3).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
-      const b1 = await betPool.connect(bettor1).bet(option1.address, {value: ethers.utils.parseEther('0.01')})
-      const b2 = await betPool.connect(bettor2).bet(option2.address, {value: ethers.utils.parseEther('0.02')})
-      const b3 = await betPool.connect(bettor2).bet(option3.address, {value: ethers.utils.parseEther('0.02')})
+      const b0 = await betPool.connect(bettor3).bet(option1.address, {value: e01})
+      const b1 = await betPool.connect(bettor1).bet(option1.address, {value: e01})
+      const b2 = await betPool.connect(bettor2).bet(option2.address, {value: e02})
+      const b3 = await betPool.connect(bettor2).bet(option3.address, {value: e02})
 
       const claim = await betPool.connect(bettor1).claim()
     }
@@ -210,7 +209,7 @@ describe("BetPool", function () {
       const [ bettor1 ] = bettors
       const [ option1, option2, option3, option4 ] = options
 
-      const b1 = await betPool.connect(bettor1).bet(option4.address, {value: ethers.utils.parseEther('0.01')})
+      const b1 = await betPool.connect(bettor1).bet(option4.address, {value: e01})
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
