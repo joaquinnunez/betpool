@@ -327,4 +327,18 @@ describe("BetPool", function () {
     const PoolContract = await ethers.getContractFactory(CONTRACT)
     await expect(claimNoPayout()).to.be.revertedWithCustomError(PoolContract, 'NothingToClaim')
   })
+
+  it("Should require outcomes different than the 0 address", async function () {
+    const [owner,
+        option1, option2, option3,
+        bettor1, bettor2, bettor3, bettor4,
+    ] = await ethers.getSigners()
+    const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
+    const poolConf = await PoolConfContract.deploy(0)
+    const BetPoolContract = await ethers.getContractFactory(CONTRACT)
+    const options = [option1, option2].map((option)=>option.address)
+    options.push(ethers.constants.AddressZero)
+
+    await expect(BetPoolContract.deploy(options, poolConf.address, e01)).to.be.revertedWith('Invalid Outcome')
+  })
 })

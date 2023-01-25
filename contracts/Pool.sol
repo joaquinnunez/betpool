@@ -145,7 +145,8 @@ contract Pool is Ownable {
 
     minBetSize = _minBetSize;
     for (uint i=0; i<_options.length; i++) {
-      // require options not to be 0x00
+      require(_options[i] != address(0), "Invalid Outcome");
+
       options[_options[i]] = true;
       emit Outcome(_options[i]);
     }
