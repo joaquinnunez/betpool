@@ -66,11 +66,10 @@ contract Pool is Ownable {
    */
   uint public total;
 
-
   /**
    * Keep track of outcomes
    */
-  mapping(address => bool) public options;
+  mapping(address => bool) public outcomes;
 
   /**
    * Keep track of the amount betted to an outcome, by a bettor.
@@ -106,7 +105,7 @@ contract Pool is Ownable {
   /**
    * Winner must be an existing outcome.
    */
-  error UnknownOption();
+  error UnknownOutcome();
 
   /**
    * Expect at least `minBetSize` to bet.
@@ -124,40 +123,40 @@ contract Pool is Ownable {
   error NothingToClaim();
 
   constructor(
-    address[] memory _options,
+    address[] memory _outcomes,
     address poolConfiguration
   ) {
     require(poolConfiguration != address(0), "Invalid configuration");
     configuration = poolConfiguration;
 
-    for (uint i=0; i<_options.length; i++) {
-      require(_options[i] != address(0), "Invalid Outcome");
+    for (uint i=0; i<_outcomes.length; i++) {
+      require(_outcomes[i] != address(0), "Invalid Outcome");
 
-      options[_options[i]] = true;
-      emit Outcome(_options[i]);
+      outcomes[_outcomes[i]] = true;
+      emit Outcome(_outcomes[i]);
     }
   }
 
-  function bet(address _option) public payable {
+  function bet(address _outcome) public payable {
     // require msg value to be enough
     if(msg.value < IPoolConfiguration(configuration).minBetSize()) revert NotEnough();
 
     // require outcome to exist
-    if(!options[_option]) revert UnknownOption();
+    if(!outcomes[_outcome]) revert UnknownOutcome();
 
     // require winner not to be set
     if(winner != address(0)) revert WinnerAlreadySet();
 
-    bets [_option] += msg.value;
-    bettors [_option] [msg.sender] += msg.value;
+    bets [_outcome] += msg.value;
+    bettors [_outcome] [msg.sender] += msg.value;
     total += msg.value;
 
-    emit Bet(_option, msg.sender, msg.value);
+    emit Bet(_outcome, msg.sender, msg.value);
   }
 
   function setWinner (address _winner) public onlyOwner {
     if(winner != address(0)) revert WinnerAlreadySet();
-    if(!options[_winner]) revert UnknownWinner();
+    if(!outcomes[_winner]) revert UnknownWinner();
 
     winner = _winner;
 
@@ -165,15 +164,8 @@ contract Pool is Ownable {
   }
 
   /*
-   * go thru all the bettors in the winning pool
-   *  and compute the % using the total in option: amount hash
-   *
-   *  house as a %
-   *  options might have a %
-   *  and bettors for sure have a %
-   *
-   *   iterate over all of the above and save
-   *   hash address: amount to withdraw
+   * Compute the % of an address for the winning outcome
+   * And send it to the user
    */
   function claim() public {
     if(winner == address(0)) revert NoWinnerYet();
@@ -200,16 +192,16 @@ contract Pool is Ownable {
     // must be house
   }
 
-  function payout (address option, address bettorAddress) public view returns (uint) {
-    uint optionTotal = bets [option];
-    if (optionTotal == 0)
+  function payout (address outcome, address bettorAddress) public view returns (uint) {
+    uint outcomeTotal = bets [outcome];
+    if (outcomeTotal == 0)
       return 0;
 
-    uint bettorTotal = bettors [option] [bettorAddress];
+    uint bettorTotal = bettors [outcome] [bettorAddress];
     if (bettorTotal == 0)
       return 0;
 
-    uint addressPercentage = (bettorTotal * 100 / optionTotal);
+    uint addressPercentage = (bettorTotal * 100 / outcomeTotal);
     return addressPercentage * toDistribute() / 100;
   }
 
