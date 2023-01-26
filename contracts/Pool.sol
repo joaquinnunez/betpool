@@ -201,12 +201,12 @@ contract Pool is Ownable {
     if (bettorTotal == 0)
       return 0;
 
-    uint addressPercentage = (bettorTotal * 100 / outcomeTotal);
-    return addressPercentage * toDistribute() / 100;
+    uint addressPercentage = (bettorTotal * 10_000 / outcomeTotal);
+    return addressPercentage * toDistribute() / 10_000;
   }
 
   function toDistribute() public view returns (uint) {
-    return total * (100 - poolFee()) / 100;
+    return total * (10_000 - poolFee()) / 10_000;
   }
 
   function poolFee() public view returns (uint) {

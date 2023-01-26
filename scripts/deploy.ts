@@ -4,7 +4,7 @@ async function main() {
   const signers = await ethers.getSigners()
   const outcomes = signers.slice(1, 5)
   const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-  const poolConf = await PoolConfContract.deploy(1, ethers.utils.parseEther('1.0'))
+  const poolConf = await PoolConfContract.deploy(100, ethers.utils.parseEther('1.0'))
   const Pool = await ethers.getContractFactory('Pool');
   const pool = await Pool.deploy(outcomes.map(o=>o.address), poolConf.address);
 

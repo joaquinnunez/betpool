@@ -30,7 +30,7 @@ describe("BetPool", function () {
   }
 
   async function PoolOf3WithFee() {
-    return PoolOf3(2)
+    return PoolOf3(200)
   }
 
   it("Should create a pool with N outcomes", async function () {
