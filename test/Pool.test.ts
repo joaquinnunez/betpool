@@ -1,7 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers"
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { Contract, Signer } from 'ethers'
 
 const CONTRACT = "Pool"
 const e01 = ethers.utils.parseEther('0.01')
@@ -22,7 +21,7 @@ describe("BetPool", function () {
 
     return { betPool, owner,
         outcomes: [outcome1, outcome2, outcome3, outcome4],
-        bettors: [bettor1, bettor2, bettor3],
+        bettors: [bettor1, bettor2, bettor3, bettor4],
     }
   }
 
@@ -53,7 +52,7 @@ describe("BetPool", function () {
     const { betPool, outcomes, bettors } = await loadFixture(PoolOf3NoFee)
     const [ outcome1 ] = outcomes
     const [ bettor1 ] = bettors
-    const x = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
 
     const amountForOutcome = await betPool.bets(outcome1.address)
     expect(amountForOutcome).to.equal(e01)
@@ -61,7 +60,7 @@ describe("BetPool", function () {
     const amountBettor1 = await betPool.bettors(outcome1.address, bettor1.address)
     expect(amountBettor1).to.equal(e01)
 
-    const x1 = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
 
     const newAmountForOutcome = await betPool.bets(outcome1.address)
     expect(newAmountForOutcome).to.equal(e02)
@@ -74,8 +73,8 @@ describe("BetPool", function () {
     const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
     const [ outcome1 ] = outcomes
     const [ bettor1, bettor2 ] = bettors
-    const x = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-    const x1 = await betPool.connect(bettor2).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor2).bet(outcome1.address, {value: e01})
 
     const amountForOutcome1 = await betPool.bets(outcome1.address)
     expect(amountForOutcome1).to.equal(e02)
@@ -91,8 +90,8 @@ describe("BetPool", function () {
     const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
     const [ outcome1 ] = outcomes
     const [ bettor1, bettor2 ] = bettors
-    const x = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-    const x1 = await betPool.connect(bettor2).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor2).bet(outcome1.address, {value: e01})
 
     const amountForOutcome1 = await betPool.bets(outcome1.address)
     expect(amountForOutcome1).to.equal(e02)
@@ -111,10 +110,10 @@ describe("BetPool", function () {
     const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
     const [ bettor1, bettor2, bettor3 ] = bettors
     const [ outcome1, outcome2, outcome3 ] = outcomes
-    const b0 = await betPool.connect(bettor3).bet(outcome1.address, {value: e01})
-    const b1 = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-    const b2 = await betPool.connect(bettor2).bet(outcome2.address, {value: e02})
-    const b3 = await betPool.connect(bettor2).bet(outcome3.address, {value: e02})
+    await betPool.connect(bettor3).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor2).bet(outcome2.address, {value: e02})
+    await betPool.connect(bettor2).bet(outcome3.address, {value: e02})
     const b1Balance = await bettor1.getBalance()
 
     await betPool.setWinner(outcome1.address)
@@ -129,8 +128,8 @@ describe("BetPool", function () {
     const { betPool, bettors, outcomes } = await loadFixture(PoolOf3WithFee)
     const [ outcome1 ] = outcomes
     const [ bettor1, bettor2 ] = bettors
-    const x = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-    const x1 = await betPool.connect(bettor2).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor2).bet(outcome1.address, {value: e01})
 
     const amountForOutcome1 = await betPool.bets(outcome1.address)
     expect(amountForOutcome1).to.equal(e02)
@@ -149,10 +148,10 @@ describe("BetPool", function () {
     const { betPool, bettors, outcomes } = await loadFixture(PoolOf3WithFee)
     const [ bettor1, bettor2, bettor3 ] = bettors
     const [ outcome1, outcome2, outcome3 ] = outcomes
-    const b0 = await betPool.connect(bettor3).bet(outcome1.address, {value: e01})
-    const b1 = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-    const b2 = await betPool.connect(bettor2).bet(outcome2.address, {value: e02})
-    const b3 = await betPool.connect(bettor2).bet(outcome3.address, {value: e02})
+    await betPool.connect(bettor3).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+    await betPool.connect(bettor2).bet(outcome2.address, {value: e02})
+    await betPool.connect(bettor2).bet(outcome3.address, {value: e02})
     const b1Balance = await bettor1.getBalance()
 
     await betPool.setWinner(outcome1.address)
@@ -168,12 +167,12 @@ describe("BetPool", function () {
       const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
       const [ bettor1, bettor2, bettor3 ] = bettors
       const [ outcome1, outcome2, outcome3 ] = outcomes
-      const b0 = await betPool.connect(bettor3).bet(outcome1.address, {value: e01})
-      const b1 = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-      const b2 = await betPool.connect(bettor2).bet(outcome2.address, {value: e02})
-      const b3 = await betPool.connect(bettor2).bet(outcome3.address, {value: e02})
+      await betPool.connect(bettor3).bet(outcome1.address, {value: e01})
+      await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+      await betPool.connect(bettor2).bet(outcome2.address, {value: e02})
+      await betPool.connect(bettor2).bet(outcome3.address, {value: e02})
 
-      const claim = await betPool.connect(bettor1).claim()
+      await betPool.connect(bettor1).claim()
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
@@ -182,7 +181,7 @@ describe("BetPool", function () {
 
   it("Should revert setting the winner when is already set", async function () {
     async function SetWinnerOnlyOnce() {
-      const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
+      const { betPool, outcomes } = await loadFixture(PoolOf3NoFee)
       const [ outcome1, outcome2 ] = outcomes
 
       await betPool.setWinner(outcome1.address)
@@ -195,8 +194,8 @@ describe("BetPool", function () {
 
   it("Should revert setting the winner if the provided winner is not an outcome", async function () {
     async function SetUnknownWinner() {
-      const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
-      const [ outcome1, outcome2, outcome3, outcome4 ] = outcomes
+      const { betPool, outcomes } = await loadFixture(PoolOf3NoFee)
+      const outcome4 = outcomes[3]
 
       await betPool.setWinner(outcome4.address)
     }
@@ -209,9 +208,9 @@ describe("BetPool", function () {
     async function BetForAnUnknownOutcome() {
       const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
       const [ bettor1 ] = bettors
-      const [ outcome1, outcome2, outcome3, outcome4 ] = outcomes
+      const outcome4 = outcomes[3]
 
-      const b1 = await betPool.connect(bettor1).bet(outcome4.address, {value: e01})
+      await betPool.connect(bettor1).bet(outcome4.address, {value: e01})
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
@@ -226,7 +225,6 @@ describe("BetPool", function () {
       await betPool.connect(bettor1).setWinner(outcome1.address)
     }
 
-    const PoolContract = await ethers.getContractFactory(CONTRACT)
     await expect(BettorSettingWinner()).to.be.revertedWith('Ownable: caller is not the owner')
   })
 
@@ -262,7 +260,7 @@ describe("BetPool", function () {
   })
 
   it("Should emit `WinnerSet` event", async function () {
-    const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
+    const { betPool, outcomes } = await loadFixture(PoolOf3NoFee)
     const [ outcome1 ] = outcomes
 
     await expect(betPool.setWinner(outcome1.address))
@@ -284,10 +282,7 @@ describe("BetPool", function () {
   })
 
   it("Should emit `Outcome` event for each outcome", async function () {
-    const [owner,
-        outcome1, outcome2, outcome3, outcome4,
-        bettor1, bettor2, bettor3, bettor4,
-    ] = await ethers.getSigners()
+    const [ outcome1, outcome2, outcome3 ] = await ethers.getSigners()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
     const poolConf = await PoolConfContract.deploy(0, e01)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
@@ -315,13 +310,13 @@ describe("BetPool", function () {
   it("Should revert a claim if there is no payout", async function () {
     async function claimNoPayout() {
       const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
-      const [ bettor1, bettor2, bettor3 ] = bettors
-      const [ outcome1, outcome2, outcome3 ] = outcomes
-      const b1 = await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-      const b2 = await betPool.connect(bettor2).bet(outcome2.address, {value: e01})
+      const [ bettor1, bettor2] = bettors
+      const [ outcome1, outcome2 ] = outcomes
+      await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
+      await betPool.connect(bettor2).bet(outcome2.address, {value: e01})
 
       await betPool.setWinner(outcome1.address)
-      const claim = await betPool.connect(bettor2).claim()
+      await betPool.connect(bettor2).claim()
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
@@ -329,10 +324,7 @@ describe("BetPool", function () {
   })
 
   it("Should require outcomes different than the 0 address", async function () {
-    const [owner,
-        outcome1, outcome2, outcome3,
-        bettor1, bettor2, bettor3, bettor4,
-    ] = await ethers.getSigners()
+    const [ outcome1, outcome2 ] = await ethers.getSigners()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
     const poolConf = await PoolConfContract.deploy(0, e01)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
