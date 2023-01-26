@@ -23,9 +23,18 @@ contract PoolConfiguration is Ownable, IPoolConfiguration {
    */
   uint public fee;
 
+  /**
+   * Only allow at least `minBetSize` bets.
+   * TODO: Only accepts multiples of `minSizeBet`
+   */
+  uint public minBetSize;
+
+
   constructor(
-    uint _fee
+    uint _fee,
+    uint _minBetSize
   ) {
     fee = _fee;
+    minBetSize = _minBetSize;
   }
 }

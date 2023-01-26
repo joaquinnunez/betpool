@@ -5,15 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IPoolConfiguration.sol";
 
 /**
- * TODO: Check bet size to be multiple of `minBetSize`
- * TODO: Add states. closed, open, waiting
+ * TODO: Add states. closed, open, waiting.
  * TODO: Events timestamp (used with states?)
  * TODO: Use ERC20 instead of ether
- * TODO: Move fee out to another contract, to make it reusable
- * TODO: Move conf out to another contract, to make it reusable `minBetSize`, `tokenAddress` and below.
- *
- * [?] max total bets number
- * [?] max size bet number
  *
  */
 
@@ -51,7 +45,7 @@ contract Pool is Ownable {
   );
 
   /**
-   * Configuration
+   * Configuration contract address should implement `IPoolConfiguration` interface
    */
   address public configuration;
 
@@ -93,12 +87,6 @@ contract Pool is Ownable {
   mapping(address => bool) public claims;
 
   /**
-   * Only allow at least `minBetSize` bets.
-   * TODO: Only accepts multiples of `minSizeBet`
-   */
-  uint public minBetSize;
-
-  /**
    * Don't allow to claim if the outcome is not set yet.
    * TODO: Use states.
    */
@@ -137,13 +125,11 @@ contract Pool is Ownable {
 
   constructor(
     address[] memory _options,
-    address poolConfiguration,
-    uint _minBetSize
+    address poolConfiguration
   ) {
     require(poolConfiguration != address(0), "Invalid configuration");
     configuration = poolConfiguration;
 
-    minBetSize = _minBetSize;
     for (uint i=0; i<_options.length; i++) {
       require(_options[i] != address(0), "Invalid Outcome");
 
@@ -154,7 +140,7 @@ contract Pool is Ownable {
 
   function bet(address _option) public payable {
     // require msg value to be enough
-    if(msg.value < minBetSize) revert NotEnough();
+    if(msg.value < IPoolConfiguration(configuration).minBetSize()) revert NotEnough();
 
     // require outcome to exist
     if(!options[_option]) revert UnknownOption();

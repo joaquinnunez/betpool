@@ -14,10 +14,10 @@ describe("BetPool", function () {
         bettor1, bettor2, bettor3, bettor4,
     ] = await ethers.getSigners()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(fee)
+    const poolConf = await PoolConfContract.deploy(fee, e01)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2, option3].map((option)=>option.address)
-    const betPool = await BetPoolContract.deploy(options, poolConf.address, e01)
+    const betPool = await BetPoolContract.deploy(options, poolConf.address)
     await betPool.deployed()
 
     return { betPool, owner,
@@ -289,10 +289,10 @@ describe("BetPool", function () {
         bettor1, bettor2, bettor3, bettor4,
     ] = await ethers.getSigners()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(0)
+    const poolConf = await PoolConfContract.deploy(0, e01)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2, option3].map((option)=>option.address)
-    const betPool = await BetPoolContract.deploy(options, poolConf.address, e01)
+    const betPool = await BetPoolContract.deploy(options, poolConf.address)
 
     await expect(betPool.deployTransaction)
       .to.emit(betPool, 'Outcome')
@@ -334,11 +334,11 @@ describe("BetPool", function () {
         bettor1, bettor2, bettor3, bettor4,
     ] = await ethers.getSigners()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(0)
+    const poolConf = await PoolConfContract.deploy(0, e01)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const options = [option1, option2].map((option)=>option.address)
     options.push(ethers.constants.AddressZero)
 
-    await expect(BetPoolContract.deploy(options, poolConf.address, e01)).to.be.revertedWith('Invalid Outcome')
+    await expect(BetPoolContract.deploy(options, poolConf.address)).to.be.revertedWith('Invalid Outcome')
   })
 })

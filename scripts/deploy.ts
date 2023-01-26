@@ -2,8 +2,10 @@ import { ethers } from "hardhat";
 
 async function main() {
   const [owner, ...outcomes] = await ethers.getSigners()
+  const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
+  const poolConf = await PoolConfContract.deploy(1, ethers.utils.parseEther('1.0'))
   const Pool = await ethers.getContractFactory('Pool');
-  const pool = await Pool.deploy(outcomes.slice(0, 5).map(o=>o.address), 1, ethers.utils.parseEther('1.0'));
+  const pool = await Pool.deploy(outcomes.slice(0, 4).map(o=>o.address), poolConf.address);
 
   await pool.deployed();
   console.log(pool.address)
