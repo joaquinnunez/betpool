@@ -8,11 +8,15 @@ const e01 = ethers.utils.parseEther('0.01')
 describe("PoolConfiguration", function () {
   async function PoolConf() {
     const [owner] = await ethers.getSigners()
+
+    const TokenContract = await ethers.getContractFactory('Token')
+    const Token = await TokenContract.deploy()
+
     const fee = 100
     const PoolConfContract = await ethers.getContractFactory(CONTRACT)
-    const poolConf = await PoolConfContract.deploy(fee, e01)
+    const poolConf = await PoolConfContract.deploy(fee, e01, Token.address)
 
-    return { poolConf, owner }
+    return { poolConf, owner, Token }
   }
 
   it("Should return min bet size", async function () {
@@ -29,5 +33,10 @@ describe("PoolConfiguration", function () {
     expect(fee).to.equal(100)
   })
 
-  // should return the token address
+  it("should return the token address", async function () {
+    const { poolConf, Token } = await loadFixture(PoolConf)
+
+    const tokenAddress = await poolConf.tokenAddress()
+    expect(tokenAddress).to.equal(Token.address)
+  })
 })

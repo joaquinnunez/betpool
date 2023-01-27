@@ -29,12 +29,18 @@ contract PoolConfiguration is Ownable, IPoolConfiguration {
    */
   uint public minBetSize;
 
+  /**
+   * ERC20 Token to accept
+   */
+  address public tokenAddress;
 
   constructor(
     uint _fee,
-    uint _minBetSize
+    uint _minBetSize,
+    address _tokenAddress
   ) {
     fee = _fee;
     minBetSize = _minBetSize;
+    tokenAddress = _tokenAddress;
   }
 }

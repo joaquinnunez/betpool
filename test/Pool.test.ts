@@ -12,8 +12,10 @@ describe("Pool", function () {
         outcome1, outcome2, outcome3, outcome4,
         bettor1, bettor2, bettor3, bettor4,
     ] = await ethers.getSigners()
+    const TokenContract = await ethers.getContractFactory('Token')
+    const Token = await TokenContract.deploy()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(fee, e01)
+    const poolConf = await PoolConfContract.deploy(fee, e01, Token.address)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const outcomes = [outcome1, outcome2, outcome3].map((outcome)=>outcome.address)
     const betPool = await BetPoolContract.deploy(outcomes, poolConf.address)
@@ -283,8 +285,10 @@ describe("Pool", function () {
 
   it("Should emit `Outcome` event for each outcome", async function () {
     const [ outcome1, outcome2, outcome3 ] = await ethers.getSigners()
+    const TokenContract = await ethers.getContractFactory('Token')
+    const Token = await TokenContract.deploy()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(0, e01)
+    const poolConf = await PoolConfContract.deploy(0, e01, Token.address)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const outcomes = [outcome1, outcome2, outcome3].map((outcome)=>outcome.address)
     const betPool = await BetPoolContract.deploy(outcomes, poolConf.address)
@@ -325,8 +329,10 @@ describe("Pool", function () {
 
   it("Should require outcomes different than the 0 address", async function () {
     const [ outcome1, outcome2 ] = await ethers.getSigners()
+    const TokenContract = await ethers.getContractFactory('Token')
+    const Token = await TokenContract.deploy()
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(0, e01)
+    const poolConf = await PoolConfContract.deploy(0, e01, Token.address)
     const BetPoolContract = await ethers.getContractFactory(CONTRACT)
     const outcomes = [outcome1, outcome2].map((outcome)=>outcome.address)
     outcomes.push(ethers.constants.AddressZero)
