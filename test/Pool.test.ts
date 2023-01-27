@@ -6,7 +6,7 @@ const CONTRACT = "Pool"
 const e01 = ethers.utils.parseEther('0.01')
 const e02 = ethers.utils.parseEther('0.02')
 
-describe("BetPool", function () {
+describe("Pool", function () {
   async function PoolOf3(fee: number) {
     const [owner,
         outcome1, outcome2, outcome3, outcome4,
