@@ -139,7 +139,7 @@ contract Pool is Ownable {
 
   function bet(address _outcome) public payable {
     // require msg value to be enough
-    if(msg.value < IPoolConfiguration(configuration).minBetSize()) revert NotEnough();
+    if(msg.value < poolMinBetSize()) revert NotEnough();
 
     // require outcome to exist
     if(!outcomes[_outcome]) revert UnknownOutcome();
@@ -211,5 +211,9 @@ contract Pool is Ownable {
 
   function poolFee() public view returns (uint) {
     return IPoolConfiguration(configuration).fee();
+  }
+
+  function poolMinBetSize() public view returns (uint) {
+    return IPoolConfiguration(configuration).minBetSize();
   }
 }
