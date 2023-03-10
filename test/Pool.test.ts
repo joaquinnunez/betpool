@@ -8,7 +8,7 @@ const e02 = ethers.utils.parseEther('0.02')
 const poolId = 'abc123'
 
 describe("Pool", function () {
-  async function PoolOf3(fee: number) {
+  async function Kiosk(fee: number) {
     const [owner,
         outcome1, outcome2, outcome3, outcome4,
         bettor1, bettor2, bettor3, bettor4,
@@ -18,16 +18,27 @@ describe("Pool", function () {
     const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
     const poolConf = await PoolConfContract.deploy(fee, e01, Token.address)
     const KioskContract = await ethers.getContractFactory(CONTRACT)
-    const betPool = await KioskContract.deploy()
-    await betPool.deployed()
+    const kiosk = await KioskContract.deploy()
+    await kiosk.deployed()
 
-    const outcomes = [outcome1, outcome2, outcome3].map((outcome)=>outcome.address)
-    await betPool.createPool(poolId, outcomes, poolConf.address)
-
-    return { betPool, owner,
+    return { betPool: kiosk, owner,
         outcomes: [outcome1, outcome2, outcome3, outcome4],
         bettors: [bettor1, bettor2, bettor3, bettor4],
+        poolConf,
     }
+  }
+
+  async function PoolOf3(fee: number) {
+    const { betPool, owner, outcomes, bettors, poolConf } = await Kiosk(fee)
+
+    const poolOutcomes = outcomes.slice(0, 3).map((outcome)=>outcome.address)
+    await betPool.createPool(poolId, poolOutcomes, poolConf.address)
+
+    return { betPool, owner, outcomes, bettors }
+  }
+
+  async function KioskNoFee() {
+    return Kiosk(0)
   }
 
   async function PoolOf3NoFee() {
@@ -201,15 +212,15 @@ describe("Pool", function () {
   })
 
   it("Should revert setting the winner if the provided winner is not an outcome", async function () {
-    async function SetUnknownWinner() {
+    async function SetUnknownOutcome() {
       const { betPool, outcomes } = await loadFixture(PoolOf3NoFee)
       const outcome4 = outcomes[3]
 
-      await betPool.setWinner(outcome4.address)
+      await betPool.setResult(poolId, [outcome4.address])
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
-    await expect(SetUnknownWinner()).to.be.revertedWithCustomError(PoolContract, 'UnknownWinner')
+    await expect(SetUnknownOutcome()).to.be.revertedWithCustomError(PoolContract, 'UnknownOutcome')
   })
 
   it("Should revert betting if the provided outcome is not actually an outcome", async function () {
@@ -290,16 +301,10 @@ describe("Pool", function () {
   })
 
   it("Should emit `Outcome` event for each outcome", async function () {
-    const [ outcome1, outcome2, outcome3 ] = await ethers.getSigners()
-    const TokenContract = await ethers.getContractFactory('Token')
-    const Token = await TokenContract.deploy()
-    const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(0, e01, Token.address)
-    const BetPoolContract = await ethers.getContractFactory(CONTRACT)
-    const outcomes = [outcome1, outcome2, outcome3].map((outcome)=>outcome.address)
-    const betPool = await BetPoolContract.deploy(outcomes, poolConf.address)
+    const { betPool, outcomes, poolConf } = await loadFixture(KioskNoFee)
 
-    await expect(betPool.deployTransaction)
+    const poolOutcomes = outcomes.slice(0, 3).map((outcome)=>outcome.address)
+    await expect(betPool.createPool(poolId, poolOutcomes, poolConf.address))
       .to.emit(betPool, 'Outcome')
   })
 
@@ -322,11 +327,11 @@ describe("Pool", function () {
       const { betPool, bettors, outcomes } = await loadFixture(PoolOf3NoFee)
       const [ bettor1, bettor2] = bettors
       const [ outcome1, outcome2 ] = outcomes
-      await betPool.connect(bettor1).bet(outcome1.address, {value: e01})
-      await betPool.connect(bettor2).bet(outcome2.address, {value: e01})
+      await betPool.connect(bettor1).bet(poolId, outcome1.address, {value: e01})
+      await betPool.connect(bettor2).bet(poolId, outcome2.address, {value: e01})
 
-      await betPool.setWinner(outcome1.address)
-      await betPool.connect(bettor2).claim()
+      await betPool.setResult(poolId, [outcome1.address])
+      await betPool.connect(bettor2).claim(poolId)
     }
 
     const PoolContract = await ethers.getContractFactory(CONTRACT)
@@ -334,15 +339,12 @@ describe("Pool", function () {
   })
 
   it("Should require outcomes different than the 0 address", async function () {
-    const [ outcome1, outcome2 ] = await ethers.getSigners()
-    const TokenContract = await ethers.getContractFactory('Token')
-    const Token = await TokenContract.deploy()
-    const PoolConfContract = await ethers.getContractFactory('PoolConfiguration')
-    const poolConf = await PoolConfContract.deploy(0, e01, Token.address)
-    const BetPoolContract = await ethers.getContractFactory(CONTRACT)
-    const outcomes = [outcome1, outcome2].map((outcome)=>outcome.address)
-    outcomes.push(ethers.constants.AddressZero)
+    const { betPool, outcomes, poolConf } = await loadFixture(KioskNoFee)
 
-    await expect(BetPoolContract.deploy(outcomes, poolConf.address)).to.be.revertedWith('Invalid Outcome')
+    const poolOutcomes = outcomes.slice(0, 3).map((outcome)=>outcome.address)
+    poolOutcomes.push(ethers.constants.AddressZero)
+
+    await expect(betPool.createPool(poolId, poolOutcomes, poolConf.address))
+      .to.be.revertedWith('Invalid Outcome')
   })
 })

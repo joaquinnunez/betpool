@@ -136,8 +136,12 @@ contract Kiosk is Ownable {
     // TODO: require pool must exists
 
     if(pool.result.length != 0) revert ResultAlreadySet();
-    // TODO: validate all outcomes are valid
-    // if(!outcomes[_winner]) revert UnknownWinner(); // TODO: replace with UnknownOutcome
+
+
+    for (uint i=0; i<_result.length; i++) {
+      require(_result[i] != address(0), "Invalid Outcome");
+      if(!pool.isOutcome[_result[i]]) revert UnknownOutcome();
+    }
 
     pool.result = _result;
 
